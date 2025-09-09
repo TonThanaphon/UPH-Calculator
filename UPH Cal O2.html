@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPH Calculator O2 Line</title>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 30px;
+            background-color: #fff8e1; /* Light cream yellow background */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Container for the main content */
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Header Styles */
+        h2 {
+            color: #fb8c00; /* Orange-yellow for main title */
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        h3 {
+            color: #ff9800; /* Slightly lighter orange for subheadings */
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        /* Input Field Styles */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="number"], input[type="time"] {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ffcc80; /* Light orange border */
+            border-radius: 8px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus, input[type="time"]:focus {
+            border-color: #ff9800; /* Orange on focus */
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+        }
+
+        /* Button Styles */
+        button {
+            padding: 12px 25px;
+            margin-right: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Calculate Button */
+        button:first-of-type { /* 'Calculate' button */
+            background-color: #ff9800; /* Orange */
+            color: white;
+        }
+
+        button:first-of-type:hover {
+            background-color: #fb8c00; /* Darker orange on hover */
+        }
+
+        /* Clear Button */
+        button:last-of-type { /* 'Clear' button */
+            background-color: #ffe0b2; /* Light orange */
+            color: #d64d00; /* Darker orange text */
+            border: 1px solid #ffcc80;
+        }
+        
+        button:last-of-type:hover {
+            background-color: #ffcc80; /* Slightly darker light orange on hover */
+        }
+
+        /* Result Table Styles */
+        #result-container {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate; /* Use separate for rounded corners */
+            border-spacing: 0;
+            margin-top: 20px;
+            border-radius: 8px; /* Rounded corners for the table */
+            overflow: hidden; /* Ensures child elements respect border-radius */
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ffcc80; /* Light orange border for cells */
+            padding: 12px;
+            text-align: center; /* จัดให้อยู่ตรงกลาง */
+            font-size: 1em;
+        }
+
+        th {
+            background-color: #ff9800; /* Orange header background */
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        /* จัดให้หัวข้อแรกอยู่ซ้ายเหมือนเดิม */
+        th:first-child {
+            text-align: left;
+        }
+        td:first-child {
+            text-align: left;
+        }
+
+        tr:nth-child(even) { /* Stripe effect for table rows */
+            background-color: #fff3e0; /* Very light orange */
+        }
+
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+        
+        /* Total row styling */
+        .total-row {
+            font-weight: bold;
+            background-color: #ffeb3b !important; /* Yellow-orange color */
+        }
+
+        /* Message for remaining/excess items */
+        #remaining-items {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>UPH Calculator O2 Line</h2>
+
+        <label for="totalItems">Unit Per Day:</label>
+        <input type="number" id="totalItems" placeholder="Input data">
+        
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime" value="17:30">
+
+        <div style="margin-bottom: 20px;">
+            <button onclick="calculate()">Calculate</button>
+            <button onclick="clearData()">Clear</button>
+        </div>
+
+        <div id="result-container">
+            <h3 id="remaining-items"></h3>
+            <table id="result-table">
+                <thead>
+                    <tr>
+                        <th>Period Time</th>
+                        <th>UPH</th>
+                    </tr>
+                </thead>
+                <tbody id="result-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const baseTimeSlots = [
+            { period: "8.00-9.00", duration: 60 },
+            { period: "9.00-10.00", duration: 60 },
+            { period: "10.00-11.00", duration: 60 },
+            { period: "11.00-11.30", duration: 30 },
+            { period: "12.20-13.00", duration: 40 },
+            { period: "13.00-14.00", duration: 60 },
+            { period: "14.00-15.00", duration: 60 },
+            { period: "15.00-16.00", duration: 60 },
+            { period: "16.00-17.00", duration: 60 },
+            { period: "17.00-17.30", duration: 30 }
+        ];
+
+        function calculate() {
+            const totalItemsInput = document.getElementById('totalItems');
+            const endTimeInput = document.getElementById('endTime');
+            const totalItems = parseFloat(totalItemsInput.value);
+            const endTime = endTimeInput.value;
+
+            if (isNaN(totalItems) || totalItems < 0) {
+                alert("กรุณาป้อนจำนวนงานที่ถูกต้อง (จำนวนเต็มบวกหรือ 0)");
+                return;
+            }
+            
+            const timeSlots = generateTimeSlots(endTime);
+            const totalDuration = timeSlots.reduce((sum, slot) => sum + slot.duration, 0);
+            
+            if (totalDuration === 0) {
+                alert("กรุณาเลือกเวลาสิ้นสุดที่ถูกต้อง");
+                return;
+            }
+            
+            const itemsPerMinute = totalItems / totalDuration;
+            
+            const tableBody = document.getElementById('result-body');
+            tableBody.innerHTML = '';
+
+            let roundedItemsArray = [];
+            let distributedItems = 0;
+
+            // Step 1: Calculate and round for all slots except the last one
+            for (let i = 0; i < timeSlots.length - 1; i++) {
+                const calculatedItems = itemsPerMinute * timeSlots[i].duration;
+                let roundedItems = Math.round(calculatedItems);
+                
+                if (roundedItems < 0) {
+                    roundedItems = 0;
+                }
+                
+                roundedItemsArray.push(roundedItems);
+                distributedItems += roundedItems;
+            }
+
+            // Step 2: Calculate the last slot's value to make the total exact
+            const lastSlotItems = totalItems - distributedItems;
+
+            // Step 3: Ensure the last slot is not negative. If it is, distribute the work differently.
+            if (lastSlotItems < 0) {
+                let remainingAdjustment = lastSlotItems;
+                for (let i = timeSlots.length - 2; i >= 0 && remainingAdjustment < 0; i--) {
+                    if (roundedItemsArray[i] > 0) {
+                        roundedItemsArray[i]--;
+                        remainingAdjustment++;
+                    }
+                }
+                roundedItemsArray.push(Math.max(0, remainingAdjustment));
+            } else {
+                roundedItemsArray.push(lastSlotItems);
+            }
+            
+            // Step 4: Display the results in the table and calculate total sum
+            let finalSum = 0;
+            for (let i = 0; i < timeSlots.length; i++) {
+                const row = document.createElement('tr');
+                const periodCell = document.createElement('td');
+                const itemsCell = document.createElement('td');
+                
+                // Add the value to final sum
+                finalSum += roundedItemsArray[i];
+
+                periodCell.textContent = timeSlots[i].period;
+                itemsCell.textContent = roundedItemsArray[i];
+
+                row.appendChild(periodCell);
+                row.appendChild(itemsCell);
+                tableBody.appendChild(row);
+            }
+            
+            // Step 5: Add the Total row
+            const totalRow = document.createElement('tr');
+            totalRow.classList.add('total-row');
+            
+            const totalLabelCell = document.createElement('td');
+            totalLabelCell.textContent = "Total";
+            
+            const totalValueCell = document.createElement('td');
+            totalValueCell.textContent = finalSum;
+            
+            totalRow.appendChild(totalLabelCell);
+            totalRow.appendChild(totalValueCell);
+            tableBody.appendChild(totalRow);
+        }
+        
+        function clearData() {
+            document.getElementById('totalItems').value = '';
+            document.getElementById('endTime').value = '17:30';
+            document.getElementById('result-body').innerHTML = '';
+            document.getElementById('remaining-items').textContent = '';
+        }
+
+        function generateTimeSlots(endTimeStr) {
+            const timeSlots = [...baseTimeSlots];
+            const baseEndTime = "17:30";
+
+            if (endTimeStr > baseEndTime) {
+                const endHour = parseInt(endTimeStr.split(':')[0]);
+                const endMinute = parseInt(endTimeStr.split(':')[1]);
+                let lastEndTimeHour = 17;
+                let lastEndTimeMinute = 30;
+
+                while (lastEndTimeHour * 60 + lastEndTimeMinute < endHour * 60 + endMinute) {
+                    let nextStartTimeHour, nextStartTimeMinute;
+                    
+                    // Add a break from 17:30 to 17:50
+                    if (lastEndTimeHour === 17 && lastEndTimeMinute === 30) {
+                        nextStartTimeHour = 17;
+                        nextStartTimeMinute = 50;
+                    } else {
+                        nextStartTimeHour = lastEndTimeHour;
+                        nextStartTimeMinute = lastEndTimeMinute;
+                    }
+
+                    // Calculate the end time for the new slot
+                    let nextEndTimeHour = nextStartTimeHour;
+                    let nextEndTimeMinute = nextStartTimeMinute + 60; // 1-hour block
+                    
+                    if (nextEndTimeMinute >= 60) {
+                        nextEndTimeHour += 1;
+                        nextEndTimeMinute -= 60;
+                    }
+                    
+                    // Adjust the last slot to match the exact end time
+                    let finalDuration = 60;
+                    if (nextEndTimeHour * 60 + nextEndTimeMinute > endHour * 60 + endMinute) {
+                        const totalMinutes = endHour * 60 + endMinute;
+                        const lastSlotStartMinutes = nextStartTimeHour * 60 + nextStartTimeMinute;
+                        finalDuration = totalMinutes - lastSlotStartMinutes;
+                        nextEndTimeHour = endHour;
+                        nextEndTimeMinute = endMinute;
+                    }
+
+                    const nextStartTimeStr = `${String(nextStartTimeHour).padStart(2, '0')}:${String(nextStartTimeMinute).padStart(2, '0')}`;
+                    const nextEndTimeStr = `${String(nextEndTimeHour).padStart(2, '0')}:${String(nextEndTimeMinute).padStart(2, '0')}`;
+                    
+                    timeSlots.push({
+                        period: `${nextStartTimeStr}-${nextEndTimeStr}`,
+                        duration: finalDuration
+                    });
+                    
+                    lastEndTimeHour = nextEndTimeHour;
+                    lastEndTimeMinute = nextEndTimeMinute;
+                }
+            }
+
+            return timeSlots;
+        }
+    </script>
+
+</body>
+</html>
